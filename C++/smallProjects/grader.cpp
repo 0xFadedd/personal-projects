@@ -1,0 +1,3 @@
+/*
+    A small project which returns the hypothetical grade for a given mark on a test
+*/
