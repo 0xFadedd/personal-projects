@@ -2,7 +2,7 @@
     A program that takes 3 angles a inputs and checks whether they form a valid triagle
 */
 
-#include<iostream>
+#include <iostream>
 #include <math.h>
 
 using namespace std;
