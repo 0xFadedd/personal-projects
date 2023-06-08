@@ -31,17 +31,23 @@ public:
         for (Piece piece : player.pieces) {
           std::array<int, 2> pieceLocation = piece.getLocation();
           if (pieceLocation[0] == column && pieceLocation[1] == row) {
-            std::cout << piece.getPieceSymbol();
+            std::cout << piece.getPieceSymbol() + " ";
             squareOccupied = true;
             break;
           }
         }
         if (squareOccupied) break;
       }
-      if (!squareOccupied) std::cout << "[]";
+      if (!squareOccupied) {
+        if((row + column)%2 == 0) {
+          std::cout << "\u25A0" << " ";
+        } else { std::cout << "\u25A1" << " "; }
+      }
     }
     std::cout << std::endl;
   }
+
+  
 }
 };
 

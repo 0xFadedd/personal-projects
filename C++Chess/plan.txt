@@ -1,0 +1,9 @@
+implement advancing the game
+    -> inputting the location of the piece you want to move and then the location you want to move it to.
+    -> check the move is valid 
+
+implement get available moves
+
+gamestate checks
+    -> check if player is in check in move function
+
