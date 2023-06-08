@@ -1,63 +1,80 @@
 #include <iostream>
-#include <math.h>
 #include <string>
 #include <fstream>
-
-using namespace std;
+#include <functional>
 
 class User {
-    public:
-        std::string username;
-    private:
-        std::string passwordHash;
+    std::string username;
+    std::string passwordHash;
+public:
+    void inputUserData() {
+        std::cout << "Please enter your username \n";
+        std::cin >> username;
+        std::cout << "Please enter your password \n";
+        std::string password;
+        std::cin >> password;
+        passwordHash = std::to_string(std::hash<std::string>{}(password));
+    }
 
-    public:
-        void setPasswordHash(string hash) {
-            passwordHash = hash;
+    bool validateUser() {
+        std::ifstream file(username + ".txt");
+
+        if (!file) {
+            std::cerr << "Incorrect Username: " << username << "\n";
+            return false;
         }
 
-        string getPasswordHash() {
-            return passwordHash;
+        std::string fileLine;
+        while(getline(file, fileLine)) {
+            if(passwordHash == fileLine) {
+                std::cout << "Success! You are now signed in. \n";
+                return true;
+            }
         }
+        std::cerr << "Incorrect Password, try again \n";
+        return false;
+    }
+
+    void registerUser() {
+        std::ofstream newUserFile(username + ".txt");
+        if (newUserFile) {
+            newUserFile << username << '\n' << passwordHash; 
+        } else {
+            std::cerr << "Failed to create user file. \n";
+        }
+    }
 };
 
 void signIn() {
-    User user;
-    std::hash<std::string> hash;
-    std::cout << "Please enter your username";
-    std::cin >> user.username;
-    std::cout << "Please enter your username";
-    std::string p;
-    user.setPasswordHash((std::cin >> p, std::to_string(hash(p))));
-
-    std::string filename = user.username + ".txt";
-    std::ifstream file(filename);
-
-    if (!file) {
-        std::cerr << "Incorrect Username: " << filename;
-        return;
-    }
-
-    std::string fileLine;
-    while(getline(file, fileLine)) {
-        if(user.getPasswordHash() == fileLine) {
-            std::cout << "Success! You are now signed in.";
-        } else {
-            std::cout << "Incorrect Password, try again";
-        }   
+    while (true) {
+        User user;
+        user.inputUserData();
+        if (user.validateUser()) {
+            break;
+        }
     }
 }
 
 void signUp() {
-    
-
+    User newUser;
+    newUser.inputUserData();
+    newUser.registerUser();
 }
 
-void main() {
-    string input = "0";
-
-    std::cout << "Would you like to sign up/sign in 1/2";
-    std::cin >> input;
-
-    input.compare("1") == 0 ? signUp() : signIn();
+int main() {
+    while (true) {
+        std::cout << "Would you like to sign up/sign in (1/2)\n";
+        std::string input;
+        std::cin >> input;
+        if (input == "1") {
+            signUp();
+            break;
+        } else if (input == "2") {
+            signIn();
+            break;
+        } else {
+            std::cout << "Invalid input. Please enter either 1 or 2.\n";
+        }
+    }
+    return 0;
 }
