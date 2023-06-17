@@ -1,33 +1,34 @@
-#include "Piece.hpp"
+#include <array>
+#include <string>
+#include <map>
+#include "Board.hpp"
 #include "Player.hpp"
-#include "CalculateAvailableMoves.hpp"
+#include "Piece.hpp"
 
-#ifndef MOVE
-#define MOVE
+#ifndef AVAILABLEMOVES
+#define AVAILABLEMOVES
 
-class Move {
-  private:
-    int currentLocation;
-    int newLocation;
-  public:
-    bool checkMove(std::array<int, 2> newLocation, Piece piece)
+
+
+
+  bool checkMove(std::array<int, 2> newLocation)
   {
-    int dx = newLocation[0] - (piece.getLocation())[0];
-    int dy = newLocation[1] - (piece.getLocation())[1];
+    int dx = newLocation[0] - location[0];
+    int dy = newLocation[1] - location[1];
 
     if ((newLocation[0] <= 0 || newLocation[1] <= 0) ||
         (newLocation[0] > 8 || newLocation[1] > 8))
     {
-      switch (piece.getType())
+      switch (type)
       {
       case PieceType::Pawn:
-        if (piece.getColour() == PieceColour::White)
+        if (colour == PieceColour::White)
         {
-          return dx == 0 && (dy == 1 || (dy == 2 && (piece.getLocation())[1] == 2));
+          return dx == 0 && (dy == 1 || (dy == 2 && location[1] == 2));
         }
-        else if (piece.getColour() == PieceColour::Black)
+        else if (colour == PieceColour::Black)
         {
-          return dx == 0 && (dy == -1 || (dy == -2 && (piece.getLocation())[1] == 7));
+          return dx == 0 && (dy == -1 || (dy == -2 && location[1] == 7));
         }
 
       case PieceType::Knight:
@@ -52,8 +53,6 @@ class Move {
 
     return false;
   }
-    
-};
 
-
-#endif 
+ 
+#endif

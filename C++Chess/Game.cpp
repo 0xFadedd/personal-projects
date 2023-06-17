@@ -2,6 +2,7 @@
 #include "Player.hpp"
 #include "Piece.hpp"
 #include "StandardSetup.hpp"
+#include "Move.hpp"
 #include <vector>
 
 #ifndef GAME
@@ -45,10 +46,10 @@ public:
       } else { currentPlayer = &whitePlayer; }
     }
 
-    void move(Piece piece, std::string newLocation) {
+    void move(Piece piece, Move move) {
       Board board = Board(whitePlayer, blackPlayer);
-      if(piece.checkMove(piece.convertMoveToLocation(newLocation))) {
-        piece = Piece(piece.getType(), piece.getColour(), piece.convertMoveToLocation(newLocation));
+      if(move.checkMove(piece.convertMoveToLocation(move))) {
+        piece = Piece(piece.getType(), piece.getColour(), piece.convertMoveToLocation(move));
       }
       board.display();
     }
@@ -62,7 +63,7 @@ public:
     void gameLoop() {
       startGame();
 
-      while(isCheckMate())
+      while(isCheckMate());
     }
 
   //constructor 
