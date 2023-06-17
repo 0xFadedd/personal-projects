@@ -46,11 +46,18 @@ public:
       } else { currentPlayer = &whitePlayer; }
     }
 
-    void move(Piece piece, Move move) {
+     std::array<int, 2> convertMoveToLocation(std::string move)
+    {
+      int column = move[0] - 'a' + 1;
+      int row = move[1] - '1' + 1;
+      return {column, row};
+    }
+
+    void move(Piece* piece, std::string newLocation) {
+      Move move = Move(piece, this->convertMoveToLocation(newLocation));
       Board board = Board(whitePlayer, blackPlayer);
-      if(move.checkMove(piece.convertMoveToLocation(move))) {
-        piece = Piece(piece.getType(), piece.getColour(), piece.convertMoveToLocation(move));
-      }
+      Piece* newPiece = new Piece(piece->getType(), piece->getColour(), move.getNewLocation());
+      delete piece;
       board.display();
     }
 

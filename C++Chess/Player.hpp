@@ -14,7 +14,7 @@ class Player {
     public:
         Colour colour;
         bool isChecked;
-        std::vector<Piece> pieces; 
+        std::vector<Piece*> pieces; 
 
         Player(Colour colour) : colour(colour) {}
 };

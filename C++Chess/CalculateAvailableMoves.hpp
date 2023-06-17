@@ -8,10 +8,7 @@
 #ifndef AVAILABLEMOVES
 #define AVAILABLEMOVES
 
-
-
-
-  bool checkMove(std::array<int, 2> newLocation)
+std::vector<Move> CalculateAvailableMoves() {
   {
     int dx = newLocation[0] - location[0];
     int dy = newLocation[1] - location[1];
@@ -53,6 +50,6 @@
 
     return false;
   }
-
+}
  
 #endif

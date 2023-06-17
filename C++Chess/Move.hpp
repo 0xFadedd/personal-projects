@@ -7,9 +7,21 @@
 
 class Move {
   private:
-    int currentLocation;
-    int newLocation;
+    std::array<int, 2> currentLocation;
+    std::array<int, 2> newLocation;
   public:
+    std::array<int, 2> getCurrentLocation() {
+      return currentLocation;
+    }
+    std::array<int, 2> getNewLocation() {
+      return newLocation;
+    }
+  
+  public:
+   
+
+
+
     bool checkMove(std::array<int, 2> newLocation, Piece piece)
   {
     int dx = newLocation[0] - (piece.getLocation())[0];
@@ -46,12 +58,20 @@ class Move {
         return (std::abs(dx) <= 1 && std::abs(dy) <= 1);
 
       default:
+        throw std::invalid_argument("Invalid Move");
         return false;
       }
     }
 
     return false;
   }
+
+  Move(Piece* piece, std::array<int, 2> newLocation) 
+    : currentLocation(piece->getLocation()), newLocation(newLocation)
+    {
+      this->checkMove(this->getNewLocation(), *piece);
+    }
+  
     
 };
 
