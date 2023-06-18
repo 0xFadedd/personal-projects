@@ -8,6 +8,7 @@ class Move {
   private:
     std::array<int, 2> currentLocation;
     std::array<int, 2> newLocation;
+    
   public:
     std::array<int, 2> getCurrentLocation() {
       return currentLocation;

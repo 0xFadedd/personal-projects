@@ -26,39 +26,57 @@ public:
     return currentPlayer;
   }
 
+  Player* getOpposition() {
+    return &(((PieceColour)currentPlayer->colour == PieceColour::White) ? this->whitePlayer : this->blackPlayer);  
+  }
+
 //checkers
 public:
-  // bool isCheck() {
-      
-  //   }
+  bool isCheck() {
+    std::vector<Piece*> pieces = currentPlayer->pieces;
+    Player* opposition = this->getOpposition();
+    auto iterator = (std::find_if(pieces.begin(), pieces.end(), [](Piece* piece) {
+      return piece->getType() == PieceType::King;
+    }));
+    assert(iterator != pieces.end());
+    Piece* currentPlayerKing = *iterator;
 
-  // bool isCheckMate() {
-      
-  // }
-
-//game setup
-public:
-    void setupPieces() {
-      standardGameSetup(whitePlayer, blackPlayer);
+    for(Piece* piece : opposition->pieces){
+      std::vector<Move> oppositionMoves = this->CalculateAvailableMoves(piece);
+      for(Move move : oppositionMoves) {
+        if(move.getNewLocation() == currentPlayerKing->getLocation()) {
+          return true;
+        }
+      }
     }
+  }
 
-    void switchTurns() {
-      if(currentPlayer == &whitePlayer) {
-        currentPlayer = &blackPlayer;
-      } else { currentPlayer = &whitePlayer; }
-    }
+  bool isCheckMate() {
 
-     std::array<int, 2> convertMoveToLocation(std::string move)
-    {
+    
+  }
+
+  std::array<int, 2> convertMoveToLocation(std::string move) {
       int column = move[0] - 'a' + 1;
       int row = move[1] - '1' + 1;
       return {column, row};
     }
-
-    bool canMoveThere(std::array<int, 2> newLocation) {
-    bool newLocationOnTheBoard = newLocation[0] < 1 || newLocation[0] > 8 || newLocation[1] < 1 || newLocation[1] > 8;
+  
+  bool spaceIsOccupiedByOpposition(std::array<int, 2> newLocation) {
     Piece* pieceAtLocation = this->board->getPieceAt(newLocation);
-    return pieceAtLocation == nullptr && newLocationOnTheBoard;
+    return pieceAtLocation != nullptr && pieceAtLocation->getPieceColour() == (PieceColour)this->getOpposition()->colour;
+  }
+
+  bool spaceIsOccupiedByCurrentPlayer(std::array<int, 2> newLocation) {
+    Piece* pieceAtLocation = this->board->getPieceAt(newLocation);
+    return pieceAtLocation != nullptr && pieceAtLocation->getPieceColour() == (PieceColour)this->currentPlayer->colour;
+  }
+
+
+
+  bool canMoveThere(std::array<int, 2> newLocation) {
+    bool newLocationOnTheBoard = newLocation[0] < 1 || newLocation[0] > 8 || newLocation[1] < 1 || newLocation[1] > 8;
+    return !this->spaceIsOccupiedByCurrentPlayer(newLocation) && newLocationOnTheBoard;
   }
 
   bool containsMove(std::vector<Move> const& moves, Move const& move) {
@@ -66,60 +84,59 @@ public:
   }
 
   std::vector<Move> CalculateAvailableMoves(Piece* piece) {
-          std::vector<Move> availableMoves;
-          std::array<int, 2> currentLocation = piece->getLocation();
-      for (int row = 1; row <= 8; row++){
-        for (int column = 1; column <= 8; column++) {
-          
-          int dx = row - currentLocation[0];
-          int dy = column - currentLocation[1];
+    std::vector<Move> availableMoves;
+    std::array<int, 2> currentLocation = piece->getLocation();
+    for (int row = 1; row <= 8; row++){
+      for (int column = 1; column <= 8; column++) {
+        int dx = row - currentLocation[0];
+        int dy = column - currentLocation[1];
 
-          //int direction = (piece->getColour() == PieceColour::White) ? 1 : -1;
-          {
-            switch (piece->getType())
-            {
-            case PieceType::Pawn:
-              if (dx == 0 && (dy == 1 || (dy == 2 && currentLocation[1] == 2))){
-                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
-              }
-              break;
-            case PieceType::Knight:
-              if ((std::abs(dx) == 2 && std::abs(dy) == 1) || (std::abs(dx) == 1 && std::abs(dy) == 2)) {
-                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
-              }
-              break;
-            case PieceType::Bishop:
-              if (std::abs(dx) == std::abs(dy)) {
-                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
-              }
-              break;
-
-            case PieceType::Rook:
-              if (dx == 0 || dy == 0) {
-                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
-              }
-              break;
-
-            case PieceType::Queen:
-              if ((dx == 0 || dy == 0) || (std::abs(dx) == std::abs(dy))) {
-                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
-              }
-              break;
-            case PieceType::King:
-              if (std::abs(dx) <= 1 && std::abs(dy) <= 1) {
-                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
-              }
-              break;
-            case PieceType::Empty:
-              return availableMoves;
-            default:
-              return availableMoves;
-            }
+        switch (piece->getType()) {
+        case PieceType::Pawn:
+          if (dx == 0 && (dy == 1 || (dy == 2 && currentLocation[1] == 2))){
+            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
           }
+          if ((dx == 1 && (dy == 1 || (dy == 2 && currentLocation[1] == 2)) 
+            && this->spaceIsOccupiedByOpposition({currentLocation[0] + dx, currentLocation[1] + dy}))) {
+            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+          }
+          break;
+        case PieceType::Knight:
+          if ((std::abs(dx) == 2 && std::abs(dy) == 1) || (std::abs(dx) == 1 && std::abs(dy) == 2)) {
+            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+          }
+          break;
+        case PieceType::Bishop:
+          if (std::abs(dx) == std::abs(dy)) {
+            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+          }
+          break;
+        case PieceType::Rook:
+          if (dx == 0 || dy == 0) {
+            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+          }
+          break;
+        case PieceType::Queen:
+          if ((dx == 0 || dy == 0) || (std::abs(dx) == std::abs(dy))) {
+            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+          }
+          break;
+        case PieceType::King:
+          if (std::abs(dx) <= 1 && std::abs(dy) <= 1) {
+            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+          }
+          break;
+        case PieceType::Empty:
+          return availableMoves;
+        default:
+          return availableMoves;
         }
-      }
+      }  
+    }
     return availableMoves;
   }  
+
+public: //move
 
     void move(Piece* &piece, std::string newLocation) {
       std::vector<Move> availableMoves = this->CalculateAvailableMoves(piece);
@@ -132,7 +149,17 @@ public:
       }
     }
 
-    
+    //game setup
+public:
+    void setupPieces() {
+      standardGameSetup(whitePlayer, blackPlayer);
+    }
+
+    void switchTurns() {
+      if(currentPlayer == &whitePlayer) {
+        currentPlayer = &blackPlayer;
+      } else { currentPlayer = &whitePlayer; }
+    }
 
     void startGame() {
       Board* board = new Board(whitePlayer, blackPlayer);

@@ -16,11 +16,10 @@ enum class PieceType
   Empty
 };
 
-enum class PieceColour
-{
-  White,
-  Black,
-  Empty
+enum class PieceColour {
+    White,
+    Black,
+    Empty
 };
 
 class Piece
@@ -80,7 +79,7 @@ public:
     return type;
   }
 
-  PieceColour getColour()
+  PieceColour getPieceColour()
   {
     return colour;
   }
@@ -89,6 +88,11 @@ public:
 
   Piece(PieceType type, PieceColour colour, std::array<int, 2> location)
       : type(type), colour(colour), location(location) {}
+
+  bool operator==(const Piece& other) const {
+        return this->type == other.type 
+               && this->location == other.location;
+    }
 };
 
 #endif
