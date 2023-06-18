@@ -38,17 +38,19 @@ public:
     auto iterator = (std::find_if(pieces.begin(), pieces.end(), [](Piece* piece) {
       return piece->getType() == PieceType::King;
     }));
-    assert(iterator != pieces.end());
-    Piece* currentPlayerKing = *iterator;
-
+    Piece* currentPlayerKing;
+    if(iterator != pieces.end()) {
+      currentPlayerKing = *iterator;
+    }
     for(Piece* piece : opposition->pieces){
       std::vector<Move> oppositionMoves = this->CalculateAvailableMoves(piece);
+      std::cout << "OPPOSITION MOVES: " << oppositionMoves.size() << "\n";
       for(Move move : oppositionMoves) {
         if(move.getNewLocation() == currentPlayerKing->getLocation()) {
           return true;
         }
       }
-    }
+    } 
   }
 
   bool isCheckMate() {
@@ -84,14 +86,18 @@ public:
   }
 
   std::vector<Move> CalculateAvailableMoves(Piece* piece) {
+   
+     
     std::vector<Move> availableMoves;
     std::array<int, 2> currentLocation = piece->getLocation();
+    
     for (int row = 1; row <= 8; row++){
       for (int column = 1; column <= 8; column++) {
         int dx = row - currentLocation[0];
         int dy = column - currentLocation[1];
-
+        try {
         switch (piece->getType()) {
+          
         case PieceType::Pawn:
           if (dx == 0 && (dy == 1 || (dy == 2 && currentLocation[1] == 2))){
             availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
@@ -131,9 +137,13 @@ public:
         default:
           return availableMoves;
         }
+        }catch (const std::length_error& le) {
+      std::cerr << "Length error: " << le.what() << '\n';}
       }  
     }
+    
     return availableMoves;
+      
   }  
 
 public: //move
@@ -170,8 +180,10 @@ public:
 
     void gameLoop() {
       startGame();
-
-      //while(isCheckMate());
+      while(!this->isCheck()) {
+        std::string playerColour = currentPlayer->colour == Colour::White ? "White" : "Black";
+        std::cout<< playerColour << " player it's your turn! \n";
+      }
     }
 
   //constructor 
