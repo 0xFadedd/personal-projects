@@ -4,6 +4,7 @@
 #include "StandardSetup.hpp"
 #include "Move.hpp"
 #include <vector>
+#include <algorithm>
 
 #ifndef GAME
 #define GAME
@@ -13,6 +14,7 @@ private:
     Player whitePlayer;
     Player blackPlayer;
     //std::vector<Piece> pieces;
+    Board* board;
     Player* currentPlayer;
 //accessors
 public:
@@ -26,13 +28,13 @@ public:
 
 //checkers
 public:
-  bool isCheck() {
+  // bool isCheck() {
       
-    }
+  //   }
 
-  bool isCheckMate() {
+  // bool isCheckMate() {
       
-  }
+  // }
 
 //game setup
 public:
@@ -53,24 +55,96 @@ public:
       return {column, row};
     }
 
-    void move(Piece* piece, std::string newLocation) {
+    bool canMoveThere(std::array<int, 2> newLocation) {
+    bool newLocationOnTheBoard = newLocation[0] < 1 || newLocation[0] > 8 || newLocation[1] < 1 || newLocation[1] > 8;
+    Piece* pieceAtLocation = this->board->getPieceAt(newLocation);
+    return pieceAtLocation == nullptr && newLocationOnTheBoard;
+  }
+
+  bool containsMove(std::vector<Move> const& moves, Move const& move) {
+    return std::find(moves.begin(), moves.end(), move) != moves.end();
+  }
+
+  std::vector<Move> CalculateAvailableMoves(Piece* piece) {
+          std::vector<Move> availableMoves;
+          std::array<int, 2> currentLocation = piece->getLocation();
+      for (int row = 1; row <= 8; row++){
+        for (int column = 1; column <= 8; column++) {
+          
+          int dx = row - currentLocation[0];
+          int dy = column - currentLocation[1];
+
+          //int direction = (piece->getColour() == PieceColour::White) ? 1 : -1;
+          {
+            switch (piece->getType())
+            {
+            case PieceType::Pawn:
+              if (dx == 0 && (dy == 1 || (dy == 2 && currentLocation[1] == 2))){
+                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
+              }
+              break;
+            case PieceType::Knight:
+              if ((std::abs(dx) == 2 && std::abs(dy) == 1) || (std::abs(dx) == 1 && std::abs(dy) == 2)) {
+                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
+              }
+              break;
+            case PieceType::Bishop:
+              if (std::abs(dx) == std::abs(dy)) {
+                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
+              }
+              break;
+
+            case PieceType::Rook:
+              if (dx == 0 || dy == 0) {
+                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
+              }
+              break;
+
+            case PieceType::Queen:
+              if ((dx == 0 || dy == 0) || (std::abs(dx) == std::abs(dy))) {
+                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
+              }
+              break;
+            case PieceType::King:
+              if (std::abs(dx) <= 1 && std::abs(dy) <= 1) {
+                availableMoves.push_back(Move(piece, {currentLocation[0] + row, currentLocation[1] + column}));
+              }
+              break;
+            case PieceType::Empty:
+              return availableMoves;
+            default:
+              return availableMoves;
+            }
+          }
+        }
+      }
+    return availableMoves;
+  }  
+
+    void move(Piece* &piece, std::string newLocation) {
+      std::vector<Move> availableMoves = this->CalculateAvailableMoves(piece);
       Move move = Move(piece, this->convertMoveToLocation(newLocation));
-      Board board = Board(whitePlayer, blackPlayer);
-      Piece* newPiece = new Piece(piece->getType(), piece->getColour(), move.getNewLocation());
-      delete piece;
-      board.display();
+      if( this->containsMove(availableMoves, move) ) {
+        Board* board = new Board(whitePlayer, blackPlayer);
+        piece->setLocation(move.getNewLocation());
+        board->display();
+        delete board;
+      }
     }
 
+    
+
     void startGame() {
-      Board board = Board(whitePlayer, blackPlayer);
+      Board* board = new Board(whitePlayer, blackPlayer);
       currentPlayer = &whitePlayer;
-      board.display();
+      board->display();
+      delete board;
     }
 
     void gameLoop() {
       startGame();
 
-      while(isCheckMate());
+      //while(isCheckMate());
     }
 
   //constructor 

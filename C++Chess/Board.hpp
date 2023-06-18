@@ -23,27 +23,26 @@ public:
   }
 
   Piece* getPieceAt(std::array<int, 2> locationToCheck) {
-    for (Player player : Players) {
-      for (Piece* piece : player.pieces) {
-        std::array<int, 2> pieceLocation = piece->getLocation();
-        if (pieceLocation[0] == locationToCheck[0] && pieceLocation[1] == locationToCheck[1]) {
-
-        }
+  for (Player player : Players) {
+    for (Piece* piece : player.pieces) {
+      std::array<int, 2> pieceLocation = piece->getLocation();
+      if (pieceLocation[0] == locationToCheck[0] && pieceLocation[1] == locationToCheck[1]) {
+        return piece;
       }
     }
   }
+  return nullptr;  
+}
 
   void display(){
     for (int row = 1; row <= 8; row++){
       for (int column = 1; column <= 8; column++){
         bool squareOccupied = false;
-        Piece* piece = this->getPieceAt({row,column});
+        Piece* piece = this->getPieceAt({column, row});
         if(piece != nullptr) {
           std::cout << piece->getPieceSymbol() + " ";
           squareOccupied = true;
-          break;
         }
-        if (squareOccupied) break;
         if (!squareOccupied) {
           if((row + column)%2 == 0) {
             std::cout << "\u25A0" << " ";
