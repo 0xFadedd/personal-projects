@@ -32,6 +32,7 @@ public:
 
 //checkers
 public:
+  // checks if current player is in check
   bool isCheck() {
     std::vector<Piece*> pieces = currentPlayer->pieces;
     Player* opposition = this->getOpposition();
@@ -55,7 +56,6 @@ public:
 
   bool isCheckMate() {
 
-    
   }
 
   std::array<int, 2> convertMoveToLocation(std::string move) {
@@ -85,9 +85,13 @@ public:
     return std::find(moves.begin(), moves.end(), move) != moves.end();
   }
 
-  std::vector<Move> CalculateAvailableMoves(Piece* piece) {
-   
-     
+/**
+ * need to work on checking if opposition piece is in path to new location -> then needs to default to add that location as a move
+ * then need to work on being able to take opposition pieces
+ * need to finish game loop by completing is check mate
+ * need to make sure calculate available moves is run at start of each turn to check for check mate/ check and to calculate available moves for the coming turn. this makes sure that when someone makes a turn, the current player will then switch and then calculate for check
+*/
+  std::vector<Move> CalculateAvailableMoves(Piece* piece) {  
     std::vector<Move> availableMoves;
     std::array<int, 2> currentLocation = piece->getLocation();
     
@@ -96,47 +100,48 @@ public:
         int dx = row - currentLocation[0];
         int dy = column - currentLocation[1];
         try {
-        switch (piece->getType()) {
-          
-        case PieceType::Pawn:
-          if (dx == 0 && (dy == 1 || (dy == 2 && currentLocation[1] == 2))){
-            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+          if(this->canMoveThere({row, column})) {  
+            switch (piece->getType()) {
+              case PieceType::Pawn:
+                if (dx == 0 && (dy == 1 || (dy == 2 && currentLocation[1] == 2))){
+                  availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+                }
+                if ((dx == 1 && (dy == 1 || (dy == 2 && currentLocation[1] == 2)) 
+                  && this->spaceIsOccupiedByOpposition({currentLocation[0] + dx, currentLocation[1] + dy}))) {
+                  availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+                }
+                break;
+              case PieceType::Knight:
+                if ((std::abs(dx) == 2 && std::abs(dy) == 1) || (std::abs(dx) == 1 && std::abs(dy) == 2)) {
+                  availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+                }
+                break;
+              case PieceType::Bishop:
+                if (std::abs(dx) == std::abs(dy)) {
+                  availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+                }
+                break;
+              case PieceType::Rook:
+                if (dx == 0 || dy == 0) {
+                  availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+                }
+                break;
+              case PieceType::Queen:
+                if ((dx == 0 || dy == 0) || (std::abs(dx) == std::abs(dy))) {
+                  availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+                }
+                break;
+              case PieceType::King:
+                if (!this->isCheck() && (std::abs(dx) <= 1 && std::abs(dy) <= 1)) {
+                  availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
+                }
+                break;
+              case PieceType::Empty:
+                return availableMoves;
+              default:
+                return availableMoves;
+            }
           }
-          if ((dx == 1 && (dy == 1 || (dy == 2 && currentLocation[1] == 2)) 
-            && this->spaceIsOccupiedByOpposition({currentLocation[0] + dx, currentLocation[1] + dy}))) {
-            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
-          }
-          break;
-        case PieceType::Knight:
-          if ((std::abs(dx) == 2 && std::abs(dy) == 1) || (std::abs(dx) == 1 && std::abs(dy) == 2)) {
-            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
-          }
-          break;
-        case PieceType::Bishop:
-          if (std::abs(dx) == std::abs(dy)) {
-            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
-          }
-          break;
-        case PieceType::Rook:
-          if (dx == 0 || dy == 0) {
-            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
-          }
-          break;
-        case PieceType::Queen:
-          if ((dx == 0 || dy == 0) || (std::abs(dx) == std::abs(dy))) {
-            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
-          }
-          break;
-        case PieceType::King:
-          if (std::abs(dx) <= 1 && std::abs(dy) <= 1) {
-            availableMoves.push_back(Move(piece, {currentLocation[0] + dx, currentLocation[1] + dy}));
-          }
-          break;
-        case PieceType::Empty:
-          return availableMoves;
-        default:
-          return availableMoves;
-        }
         }catch (const std::length_error& le) {
       std::cerr << "Length error: " << le.what() << '\n';}
       }  
