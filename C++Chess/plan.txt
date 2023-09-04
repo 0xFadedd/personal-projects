@@ -7,3 +7,24 @@ implement get available moves
 gamestate checks
     -> check if player is in check in move function
 
+
+
+I am writing a chess program in c++. I'm currently working on allowing moving and taking off pieces on the board. To do this, I am calculating the available moves of a player before each turn. This is to one, check if the player is in check/checkmate. Two, to make it easier to take other opposition pieces by keeping track of all available moves of both players, rather than calculating whether moves are valid when they happen, especially as the current player switches on each turn. I'm currently at the stage where I want to calculate available moves but checking if a piece is in the way. If it is the player's own piece  that's in the way of their move I need to make sure that move is not added. If it is an opposition piece I need to make sure the move is also not added.
+
+for example, If the rook of player 1 rook is moving from a1 -> a8 and player 1 has a pawn at a4, then they can't move to a4 or beyond (only a2 or a3). If player 1 rook is moving from a1 -> a8 and player2 has a pawn at a4, then player 1 cannot move their rook beyond a4 but they can move it to a4 taking the pawn. 
+
+this is the function I was using to get the piece that is in the path of the move:
+
+Piece* pieceOnPath(std::array<int, 2> currentLocation, std::array<int, 2> newLocation) {
+    Piece* piece;
+    for (int row = 1; row <= 8 - newLocation[0]; row++){
+      for (int column = 1; column <= 8 - newLocation[1]; column++){
+        piece = this->board->getPieceAt({currentLocation[0] + row, currentLocation[1] + column});
+        if(piece != nullptr){
+          return piece;
+        } else { continue; }
+      }
+    }
+    return ;
+  }
+
