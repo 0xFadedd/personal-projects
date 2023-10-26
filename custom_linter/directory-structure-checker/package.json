@@ -2,14 +2,19 @@
   "name": "directory-structure-checker",
   "displayName": "Directory Structure Checker",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.1.2",
   "engines": {
     "vscode": "^1.83.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:extension.yourCommandName",
+    "workspaceContains:**/*.yourFileExtension",
+    "onTextDocumentChanged",
+    "onTextDocumentOpened"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
