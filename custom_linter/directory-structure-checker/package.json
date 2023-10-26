@@ -2,7 +2,7 @@
   "name": "directory-structure-checker",
   "displayName": "Directory Structure Checker",
   "description": "",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "engines": {
     "vscode": "^1.83.0"
   },
@@ -10,8 +10,6 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.yourCommandName",
-    "workspaceContains:**/*.yourFileExtension",
     "onTextDocumentChanged",
     "onTextDocumentOpened"
   ],

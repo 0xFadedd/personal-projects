@@ -4,40 +4,35 @@ import { execSync } from "child_process";
 let diagnosticCollection: vscode.DiagnosticCollection;
 
 export function activate(context: vscode.ExtensionContext) {
-  diagnosticCollection =
-    vscode.languages.createDiagnosticCollection("Directory Structure Checker");
+  diagnosticCollection = vscode.languages.createDiagnosticCollection(
+    "Directory Structure Checker"
+  );
 
   if (vscode.window.activeTextEditor) {
-    lint(vscode.window.activeTextEditor.document);
+    lint(vscode.window.activeTextEditor.document, context);
   }
 
-  // Listen to changes to lint in real-time
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
-      console.log(event.document)
-      lint(event.document);
+      lint(event.document, context);
     })
   );
 }
 
-function lint(document: vscode.TextDocument) {
-  
+function lint(document: vscode.TextDocument, context: vscode.ExtensionContext) {
   if (document.uri.scheme !== "file") {
     return;
   }
-
-  vscode.window.showInformationMessage('Linting file: ' + document.fileName);
+  console.log("Linting file: " + document.fileName)
+  vscode.window.showInformationMessage("Linting file: " + document.fileName);
 
   let result: string[] = [];
-  try {
-    result = execSync(`python3 ./linter.py ${document.fileName}`)
-      .toString()
-      .trim()
-      .split("\n");
-  } catch (error : any) {
-    vscode.window.showErrorMessage(`Failed to run linter: ${error.message}`);
-    return;
-  }
+  const linterPath = context.asAbsolutePath("./linter.py");
+  result = execSync(`python3 "${linterPath}" "${document.fileName}"`)
+    .toString()
+    .trim()
+    .split("\n");
+
   console.log(result);
 
   // Parse the results and create diagnostics
@@ -50,6 +45,7 @@ function lint(document: vscode.TextDocument) {
       source: "Directory Structure Checker",
     };
     diagnostics.push(diagnostic);
+    console.log(issue);
   }
 
   diagnosticCollection.set(document.uri, diagnostics);
