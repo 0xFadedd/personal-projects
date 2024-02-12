@@ -1,0 +1,39 @@
+{
+  "categories": [
+    {
+      "itemName": "fruit_&_veg",
+      "subCategories": [
+        {
+          "itemName": "fruit"
+        }
+      ],
+      "terseIngredients": [
+        {
+          "itemName": "onion",
+          "terseName": "onion"
+        }
+      ]
+    },
+    {
+      "itemName": "meat",
+      "subCategories": [
+        {
+          "itemName": "chicken",
+          "terseIngredients": [
+            {
+              "itemName": "chicken breasts",
+              "terseName": "breasts"
+            },
+            {
+              "itemName": "leg",
+              "terseName": "leg"
+            }
+          ]
+        },
+        {
+          "itemName": "r"
+        }
+      ]
+    }
+  ]
+}
